@@ -33,6 +33,18 @@ func matchSlice(a, b []int) bool {
 	return true
 }
 
+func matchMatrix(a, b [][]int) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for idx := range a {
+		if !matchSlice(a[idx], b[idx]) {
+			return false
+		}
+	}
+	return true
+}
+
 func TestPeopleLength(t *testing.T) {
 	var testPeople People
 	const expectedLen = 3
@@ -175,5 +187,55 @@ func TestCreateMatrixValueError(t *testing.T) {
 	_, err := New(inputString)
 	if err == nil || err.Error() != expectedErrorMessage {
 		t.Errorf("Expected \"%s\", but got, \"%s\"", expectedErrorMessage, err)
+	}
+}
+
+func TestRows(t *testing.T) {
+	inputString := "1 2 3\n4 5 6\n7 8 9"
+	expectedResult := [][]int{
+		{1, 2, 3},
+		{4, 5, 6},
+		{7, 8, 9},
+	}
+
+	matrix, _ := New(inputString)
+	result := matrix.Rows()
+	if !matchMatrix(result, expectedResult) {
+		t.Errorf("Expected %v, but got %v", expectedResult, result)
+	}
+}
+
+func TestCols(t *testing.T) {
+	inputString := "1 2 3\n4 5 6\n7 8 9"
+	expectedResult := [][]int{
+		{1, 4, 7},
+		{2, 5, 8},
+		{3, 6, 9},
+	}
+
+	matrix, _ := New(inputString)
+	result := matrix.Cols()
+	if !matchMatrix(result, expectedResult) {
+		t.Errorf("Expected %v, but got %v", expectedResult, result)
+	}
+}
+
+func TestSet(t *testing.T) {
+	inputString := "1 2 3\n4 5 6\n7 8 9"
+	expectedResult := []int{1, 2, 3, 4, 99, 6, 7, 8, 9}
+
+	matrix, _ := New(inputString)
+	_ = matrix.Set(1, 1, 99)
+	if !matchSlice(matrix.data, expectedResult) {
+		t.Errorf("Expected %v, but got %v", expectedResult, matrix.data)
+	}
+}
+
+func TestSetError(t *testing.T) {
+	inputString := "1 2 3\n4 5 6\n7 8 9"
+	matrix, _ := New(inputString)
+	result := matrix.Set(3, 3, 99)
+	if result {
+		t.Error("Expected result == false, but got true")
 	}
 }
